@@ -1,19 +1,10 @@
 # fourier
-Raspberry Pi implementation of power spectrum analysis
+Raspberry Pi control code for an antenna demonstration system developed by capstone team 44 from Brigham Young University.
 
 Much of the code included in this repository is pulled from the following github repositories:
 prashantrar/pi_gpu_fft_wrapper
 apcragg/fmcw_radar
 
-To get GPU_FFT enter the following at the command prompt:
+Antenna Read contains the code to compute the power spectral density of an incoming signal.
 
-sudo rpi-update && sudo reboot
-
-To build and run the example program:
-
-cd /opt/vc/src/hello_pi/hello_fft
-make
-sudo mknod char_dev c 100 0
-sudo ./hello_fft.bin
-
-API documentation can be found in the hello_fft folder.
+PLLcontrol contains the code to control an ADF4158 PLL.
