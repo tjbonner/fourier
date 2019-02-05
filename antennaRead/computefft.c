@@ -87,7 +87,7 @@ int computefft(double* signal, int log2_N) {
         gpu_fft_execute(fft); // call one or many times
         //t[1] = Microseconds();
     }
-	
+
     //printf("finished performing fft\n\r");
     int temp;
 
@@ -98,10 +98,10 @@ int computefft(double* signal, int log2_N) {
 		    signal[i] = base[i].re;
 	    	i++;
 		    signal[i] = base[i].im;
-            //printf("index: %d %0.3lf %0.3lf\n", temp, signal[temp], signal[i]); 
+            //printf("index: %d %0.3lf %0.3lf\n", temp, signal[temp], signal[i]);
 	    }
     }
-    
+
     //printf("finished transfer\n\r");
 
     gpu_fft_release(fft); // Videocore memory lost if not freed !
