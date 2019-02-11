@@ -22,7 +22,7 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 
 /* These parameters depend on the RPI edition */
 
-#define BCM2708_PERI_BASE       0x20000000 // value needs to be changed to 0x3F000000 for a RPi3. 0x20000000 works for Pi W.
+#define BCM2708_PERI_BASE       0x3F000000 // value needs to be changed to 0x3F000000 for a RPi3. 0x20000000 works for Pi W.
 #define GPIO_BASE               (BCM2708_PERI_BASE + 0x200000)	// GPIO controller
 
 // Defines  GPIO macros to control GPIOs.
@@ -54,28 +54,31 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 //Define GPIO Pins
 
 //ADC 1
-#define BIT0_ADC1 16
-#define BIT1_ADC1 17
-#define BIT2_ADC1 18
-#define BIT3_ADC1 19
-#define BIT4_ADC1 20
-#define BIT5_ADC1 22
-#define BIT6_ADC1 25
-#define BIT7_ADC1 26
-#define BIT8_ADC1 27
-#define BIT9_ADC1
+#define BIT0_ADC1 13
+#define BIT1_ADC1 6
+#define BIT2_ADC1 12
+#define BIT3_ADC1 3
+#define BIT4_ADC1 2
+#define BIT5_ADC1 0
+#define BIT6_ADC1 1
+#define BIT7_ADC1 16
+#define BIT8_ADC1 15
+#define BIT9_ADC1 5
 
 //ADC 2
-#define BIT0_ADC2 7
-#define BIT1_ADC2 8
-#define BIT2_ADC2 9
-#define BIT3_ADC2 10
-#define BIT4_ADC2 11
-#define BIT5_ADC2 12
-#define BIT6_ADC2 13
-#define BIT7_ADC2 14
-#define BIT8_ADC2 15
-#define BIT0_ADC2
+#define BIT0_ADC2 28
+#define BIT1_ADC2 25
+#define BIT2_ADC2 27
+#define BIT3_ADC2 24
+#define BIT4_ADC2 23
+#define BIT5_ADC2 26
+#define BIT6_ADC2 11
+#define BIT7_ADC2 10
+#define BIT8_ADC2 14
+#define BIT9_ADC2 29
+
+//CLOCK
+#define CLOCK_GPIO 7
 
 #define PPWWMM 6
 
@@ -279,9 +282,9 @@ int init_module(void)
 	INP_GPIO(BIT9_ADC2);
 
 	//Set a clock signal on Pin 4
-	p->addr=(uint32_t *)ioremap(CLOCK_BASE, 41*4);
- 	INP_GPIO(4);
-	SET_GPIO_ALT(4,0);
+	p->addr=(uint32_t *)ioremap(CLOCK_BASE, 41*CLOCK_GPIO);
+ 	INP_GPIO(CLOCK_GPIO);
+	SET_GPIO_ALT(CLOCK_GPIO,0);
 	// Preparing the clock
 
 	*(myclock.addr+28)=0x5A000000 | speed_id; //Turn off the clock
@@ -298,7 +301,7 @@ int init_module(void)
  * This function is called when the module is unloaded
  */
 void cleanup_module(void)
-{
+}
 	unregister_chrdev(Major, DEVICE_NAME);
 	unmap_peripheral(&gpio);
 	unmap_peripheral(&myclock);
