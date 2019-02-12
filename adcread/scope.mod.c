@@ -27,13 +27,13 @@ __attribute__((section("__versions"))) = {
 	{ 0x6bc3fbc0, __VMLINUX_SYMBOL_STR(__unregister_chrdev) },
 	{ 0x79c5a9f0, __VMLINUX_SYMBOL_STR(ioremap) },
 	{ 0x78a9cfbf, __VMLINUX_SYMBOL_STR(__register_chrdev) },
+	{ 0xf4fa543b, __VMLINUX_SYMBOL_STR(arm_copy_to_user) },
 	{ 0x4a74c285, __VMLINUX_SYMBOL_STR(try_module_get) },
 	{ 0xd697e69a, __VMLINUX_SYMBOL_STR(trace_hardirqs_on) },
 	{ 0x94eea794, __VMLINUX_SYMBOL_STR(getnstimeofday64) },
 	{ 0xec3d2e1b, __VMLINUX_SYMBOL_STR(trace_hardirqs_off) },
 	{ 0xf9a482f9, __VMLINUX_SYMBOL_STR(msleep) },
 	{ 0xa61e767e, __VMLINUX_SYMBOL_STR(module_put) },
-	{ 0xbb72d4fe, __VMLINUX_SYMBOL_STR(__put_user_1) },
 	{ 0x2e5810c6, __VMLINUX_SYMBOL_STR(__aeabi_unwind_cpp_pr1) },
 	{ 0x27e1a049, __VMLINUX_SYMBOL_STR(printk) },
 	{ 0xb1ad28e0, __VMLINUX_SYMBOL_STR(__gnu_mcount_nc) },
@@ -45,4 +45,4 @@ __attribute__((section(".modinfo"))) =
 "depends=";
 
 
-MODULE_INFO(srcversion, "7A058049EEE52038BD66818");
+MODULE_INFO(srcversion, "497EB01B00EFBE2439FEEFD");
