@@ -37,21 +37,8 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 #define CLOCK_BASE              (BCM2708_PERI_BASE + 0x00101000)
 #define GZ_CLK_BUSY (1 << 7)
 
-
-//How many samples to capture
 #define SAMPLE_SIZE 	2500 // 2x2500 pts in one line
 #define REPEAT_SIZE 	10 // 10 captures
-
-//static int SAMPLE_SIZE = 2500;
-//static int REPEAT_SIZE = 10;
-
-//module_param(SAMPLE_SIZE, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-//module_param(REPEAT_SIZE, int, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
-
-// in this setup, there will be REPEAT_SIZE captures, of each SAMPLE_SIZE length, with ADCs interleaved,
-// that means 2x SAMPLE_SIZE length
-
-//Define GPIO Pins
 
 //ADC 1
 #define BIT0_ADC1 9
@@ -86,21 +73,15 @@ struct bcm2835_peripheral {
     int mem_fd;
     void *map;
     volatile unsigned int *addr;
-
 };
 
 static int map_peripheral(struct bcm2835_peripheral *p);
 static void unmap_peripheral(struct bcm2835_peripheral *p);
 static void readScope(void);
 
-static int Major;		/* Major number assigned to our device driver */
-static int Device_Open = 0;
-static char msg[BUF_LEN];	/* The msg the device will give when asked */
+static int major_num;
+static int open_flag = 0;
 
-// changed from unsigned char
-static uint32_t *buf_p;
-
-//changed
 static struct file_operations fops = {
 read : device_read,
        write : device_write,
@@ -112,14 +93,14 @@ static struct bcm2835_peripheral myclock = {CLOCK_BASE};
 
 static struct bcm2835_peripheral gpio = {GPIO_BASE};
 
-typedef struct DataStruct{
-    uint32_t Buffer[REPEAT_SIZE*SAMPLE_SIZE];
+typedef struct adc_output{
+    uint32_t buffer[REPEAT_SIZE*SAMPLE_SIZE];
     uint32_t time;
-}Ds;
-Ds dataStruct;
+}adc_out;
+adc_out sampled_output;
 
-static uint32_t *ScopeBufferStart;
-static uint32_t *ScopeBufferStop;
+static uint32_t *buffer_start;
+static uint32_t *buffer_stop;
 
 static int map_peripheral(struct bcm2835_peripheral *p)
 {
@@ -141,8 +122,6 @@ static void readScope(){
     int counterline = 0;
     int limit = 0;
 
-    int Pon=0;
-    int Poff=0;
     struct timespec ts_start,ts_stop;
 
     msleep(10);
@@ -156,19 +135,12 @@ static void readScope(){
     getnstimeofday(&ts_start);
 
     while(counterline<REPEAT_SIZE){
-        Pon = 0;
-        Poff = 0;
         limit = (counterline+1)*SAMPLE_SIZE;
-
         printk(KERN_INFO "scope: capturing repeat %d\n", counterline);
-
         while(counter<(limit) ){
-            dataStruct.Buffer[counter++]= *(gpio.addr + 13);
+            sampled_output.buffer[counter++]= *(gpio.addr + 13);
         }
-
-        // to avoid freezes
         msleep(0.5);
-
         counterline++;
     }
     printk(KERN_INFO "scope: finished collecting data\n");
@@ -182,13 +154,10 @@ static void readScope(){
     local_irq_enable();
 
     //save the time difference
-    dataStruct.time=timespec_to_ns(&ts_stop)-timespec_to_ns(&ts_start);//ns resolution
-    buf_p= dataStruct.Buffer;//cound maybe removed
+    sampled_output.time=timespec_to_ns(&ts_stop)-timespec_to_ns(&ts_start);//ns resolution
 
-    //accessing memeber of the structure that is already pointer by its nature
-    ScopeBufferStart= dataStruct.Buffer;
-    ScopeBufferStop=ScopeBufferStart+sizeof(struct DataStruct);
-    printk(KERN_INFO "scope: finished playing with time\n");
+    buffer_start = sampled_output.buffer;
+    buffer_stop = buffer_start+sizeof(struct adc_output);
 }
 
 int init_module(void)
@@ -197,31 +166,23 @@ int init_module(void)
     struct bcm2835_peripheral *p=&myclock;
     int speed_id = 6; //1 for to start with 19Mhz or 6 to start with 500 MHz
 
-    Major = register_chrdev(0, DEVICE_NAME, &fops);
+    major_num = register_chrdev(0, DEVICE_NAME, &fops);
 
-    if (Major < 0) {
-        printk(KERN_ALERT "Registering char device failed with %d\n", Major);
-        return Major;
+    if (major_num < 0) {
+        printk(KERN_ALERT "Registering char device failed with %d\n", major_num);
+        return major_num;
     }
 
-    printk(KERN_INFO "I was assigned major number %d. To talk to\n", Major);
-    printk(KERN_INFO "the driver, create a dev file with\n");
-    printk(KERN_INFO "'mknod /dev/%s c %d 0'.\n", DEVICE_NAME, Major);
-    printk(KERN_INFO "Try various minor numbers. Try to cat and echo to\n");
-    printk(KERN_INFO "the device file.\n");
-    printk(KERN_INFO "Remove the device file and module when done.\n");
-
-    //Map GPIO
+    printk(KERN_INFO "scope: Using major number %d.\n", major_num);
+    printk(KERN_INFO "scope: Run 'mknod /dev/%s c %d 0' to create character device.\n", DEVICE_NAME, major_num);
 
     if(map_peripheral(&gpio) == -1)
     {
-        // goes without comma
         printk(KERN_ALERT "Failed to map the physical GPIO registers into the virtual memory space.\n");
         return -1;
     }
 
-    //Define Scope pins as inputs
-    // ADC1
+    //ADC1
     INP_GPIO(BIT0_ADC1);
     INP_GPIO(BIT1_ADC1);
     INP_GPIO(BIT2_ADC1);
@@ -264,66 +225,57 @@ int init_module(void)
  * This function is called when the module is unloaded
  */
 void cleanup_module(void){
-    unregister_chrdev(Major, DEVICE_NAME);
+    unregister_chrdev(major_num, DEVICE_NAME);
     unmap_peripheral(&gpio);
     unmap_peripheral(&myclock);
 }
 
 static int device_open(struct inode *inode, struct file *file)
 {
-    static int counter = 0;
-
-    if (Device_Open)
+    if (open_flag)
         return -EBUSY;
 
-    Device_Open++;
+    open_flag++;
     printk(KERN_INFO "scope: Device has been opened.\n");
     readScope();//Read n Samples into memory
     printk(KERN_INFO "scope: returned from readScope()\n");
     try_module_get(THIS_MODULE);
-
     return SUCCESS;
 }
 
 static int device_release(struct inode *inode, struct file *file)
 {
-    Device_Open--;
+    open_flag--;
     module_put(THIS_MODULE);
     return 0;
 }
 
-static ssize_t device_read(struct file *filp,
-        char *buffer,
-        size_t length,
-        loff_t * offset)
+static ssize_t device_read(struct file *file,
+        char *user_buffer,
+        size_t size,
+        loff_t *offset)
 {
+    ssize_t len = min(sizeof(struct adc_output) - *offset, size);
 
-    printk(KERN_INFO "scope: about to copy data to userspace\n");
-    // Number of bytes actually written to the buffer
-    printk(KERN_INFO "scope: copying up %d bytes of data.\n", sizeof(struct DataStruct));
-    int bytes_read = 0;
-    bytes_read = copy_to_user(buffer, buf_p, sizeof(struct DataStruct));
+    if (len <= 0)
+        return 0;
+    printk(KERN_INFO "Time it ran for: %d\n",sampled_output.time);
+    /* read data from device in my_data->buffer */
+    if (copy_to_user(user_buffer, sampled_output.buffer + *offset, len))
+        return -EFAULT;
 
-    if (bytes_read==0){            // if true then have success
-        printk(KERN_INFO "scope: Sent %d characters to the user\n", sizeof(struct DataStruct));
-        return bytes_read;  // clear the position to the start and return 0
-    }
-    else {
-        printk(KERN_INFO "scope: Failed to send %d characters to the user\n", bytes_read);
-        return -EFAULT;              // Failed -- return a bad address message (i.e. -14)
-    }
-
-    return bytes_read;
+    *offset += len;
+    return len;
 }
 
     static ssize_t
 device_write(struct file *filp, const char *buff, size_t len, loff_t * off)
 {
-    printk(KERN_ALERT "Sorry, this operation isn't supported.\n");
+    printk(KERN_ALERT "scope: does not support writing to the device.\n");
     return -EINVAL;
 }
 
 
-MODULE_AUTHOR("kelu124 and jholtom");
+MODULE_AUTHOR("jholtom");
 MODULE_LICENSE("GPL");
 MODULE_VERSION("3");

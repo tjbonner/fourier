@@ -2,48 +2,28 @@
 #include<cmath>
 #include<fstream>
 #include<bitset>
+#include<vector>
 
 typedef unsigned int uint32_t;
 
-const int DataPointsRPi=2500;
-struct DataStructRPi{
-	uint32_t Buffer[DataPointsRPi];
-	uint32_t time;
-};
+const int DataPointsRPi=100000;
 
 int main(){
-	struct DataStructRPi dataStruct;
-	unsigned char *ScopeBufferStart;
-	unsigned char *ScopeBufferStop;
-	unsigned char *buf_p;
+    uint32_t Buffer[DataPointsRPi];
+    std::ifstream file("/dev/hsdk", std::ios::binary | std::ios::ate);
+    std::streamsize size = DataPointsRPi;
+    file.seekg(0, std::ios::beg);
 
-	buf_p=(unsigned char*)&dataStruct;
-	ScopeBufferStart=(unsigned char*)&dataStruct;
-	ScopeBufferStop=ScopeBufferStart+sizeof(struct DataStructRPi);
+    std::vector<char> buffer(size);
+    if (file.read(buffer.data(), size))
+    {
+        for(int i=0;i<DataPointsRPi;i++){
 
-	std::string line;
-	std::ifstream myfile ("/dev/hsdk");
-	if(myfile.is_open()){
-		while(std::getline(myfile,line)){
-			for(int i=0;i<line.size();i++){
-				if(buf_p>ScopeBufferStop)
-					std::cerr<<"buf_p out of range!"<<std::endl;
-				*(buf_p)=line[i];
-				buf_p++;
-			}
-		}
-		myfile.close();
-	}
-	else std::cerr<<"Unable to open file"<<std::endl;
+            std::cout<<"\t"<<Buffer[i]<<std::endl;
 
-	double time = dataStruct.time/(double)DataPointsRPi;
+        }
+    }
+    else std::cerr<<"Unable to open file"<<std::endl;
 
-	for(int i=0;i<DataPointsRPi;i++){
-
-		std::cout<<i*time<<"\t"<<dataStruct.Buffer[i]<<std::endl;
-
-	}
-	return 0;
+    return 0;
 }
-
-
