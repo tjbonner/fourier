@@ -36,7 +36,7 @@ int main(void){
     struct sockaddr_un server_sockaddr;
     struct sockaddr_un client_sockaddr;
     char buff[BUFF_SIZE];
-    bool run = false;
+    bool run = true;
 
     /**************************************/
     /* Create test variables              */
@@ -158,22 +158,6 @@ int main(void){
     }
     else {
         printf("Client socket filepath: %s\n", client_sockaddr.sun_path);
-    }
-
-    /************************************/
-    /* Read and print the data          */
-    /* incoming on the connected socket */
-    /************************************/
-    printf("Waiting to read...\n");
-    bytes_rec = recv(client_sock, buf, sizeof(buf), 0);
-    if (bytes_rec == -1){
-        printf("RECV ERROR: %d\n", sock_errno());
-        close(server_sock);
-        close(client_sock);
-        exit(1);
-    }
-    else {
-        run = buff[0];
     }
 
     while (run){
