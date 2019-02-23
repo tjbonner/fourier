@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import signal
-from scipy.interpolate import griddata
 import math
-from scipy.signal import decimate, convolve
 RawData ="30khz.bin"
 f = open(RawData, "r")
 a = np.fromfile(f, dtype=np.uint32)
