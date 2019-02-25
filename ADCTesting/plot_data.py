@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io
 import math
-RawData ="1mhz.bin"
+RawData ="750k.bin"
 f = open(RawData, "r")
 a = np.fromfile(f, dtype=np.uint32)
 t = 2668891
@@ -54,9 +54,9 @@ for z in range(len(M)):
     SigOut.append(M2[z]);
     z += 1;
 
-scipy.io.savemat('1m-out.mat', mdict={'data': SigOut})
+scipy.io.savemat('750k.mat', mdict={'data': SigOut})
 
-plt.figure(figsize=(15,5))
-plt.plot(SigOut,"b")
-plt.title("Plots "+RawData+' .')
-plt.show()
+#plt.figure(figsize=(15,5))
+#plt.plot(SigOut,"b")
+#plt.title("Plots "+RawData+' .')
+#plt.show()
