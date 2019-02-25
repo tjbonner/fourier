@@ -37,7 +37,7 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 #define CLOCK_BASE              (BCM2708_PERI_BASE + 0x00101000)
 #define GZ_CLK_BUSY (1 << 7)
 
-#define SAMPLE_SIZE 50000 //50000 pts
+#define SAMPLE_SIZE 25000 //50000 pts
 
 //ADC 1
 #define BIT0_ADC1 9

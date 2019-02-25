@@ -1,0 +1,11 @@
+echo "Build and Run: Removed device file";
+sudo rm /dev/hsdk;
+echo "Build and Run: Making kernel module";
+make clean;
+make;
+echo "Build and Run: Unloading old module";
+sudo rmmod scope;
+echo "Build and Run: Loading new module";
+sudo insmod scope.ko;
+echo "Build and Run: Creating device file";
+sudo mknod /dev/hsdk c 243 0;

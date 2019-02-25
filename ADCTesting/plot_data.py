@@ -1,10 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy.io
 import math
-RawData ="30khz.bin"
+RawData ="1mhz.bin"
 f = open(RawData, "r")
 a = np.fromfile(f, dtype=np.uint32)
-t = 200000000
+t = 2668891
 V = a[:-1].copy()
 T = [ (( x * t ) / ( 1000.0*len(V) )) for x in 2*range(len(V))]
 
@@ -52,6 +53,8 @@ for z in range(len(M)):
     SigOut.append(M[z]);
     SigOut.append(M2[z]);
     z += 1;
+
+scipy.io.savemat('1m-out.mat', mdict={'data': SigOut})
 
 plt.figure(figsize=(15,5))
 plt.plot(SigOut,"b")
