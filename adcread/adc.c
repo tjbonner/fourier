@@ -37,8 +37,7 @@ static ssize_t device_write(struct file *, const char *, size_t, loff_t *);
 #define CLOCK_BASE              (BCM2708_PERI_BASE + 0x00101000)
 #define GZ_CLK_BUSY (1 << 7)
 
-#define SAMPLE_SIZE 	2500 // 2x2500 pts in one line
-#define REPEAT_SIZE 	10 // 10 captures
+#define SAMPLE_SIZE 50000 //50000 pts
 
 //ADC 1
 #define BIT0_ADC1 9
@@ -94,7 +93,7 @@ static struct bcm2835_peripheral myclock = {CLOCK_BASE};
 static struct bcm2835_peripheral gpio = {GPIO_BASE};
 
 typedef struct adc_output{
-    uint32_t buffer[REPEAT_SIZE*SAMPLE_SIZE];
+    uint32_t buffer[SAMPLE_SIZE];
     uint32_t time;
 }adc_out;
 adc_out sampled_output;
@@ -112,15 +111,9 @@ static void unmap_peripheral(struct bcm2835_peripheral *p) {
     iounmap(p->addr);//unmap the address
 }
 
-/*
-   In our case we are only taking 10k samples so not too much time. Before the sample taking we take a time stamp. Then we read out 10k times the GPIO register and save it in our data structure. The GPIO register is a 32bit value so it is made out of 32 ‘1’s and ‘0’s each defining if the GPIO port is high (3.3V) or low (GND). After the read out we take another time stamp and turn on all interrupts again. The two time stamps we took are important since we can calculate how long it took to read in the 10k samples. The time difference divided by 10k gives us the time between each sample point. In case the sample frequency is too high and should be reduced one can add some delay and waste some time during each readout step. Here the aim is to achieve the maximal performance.
-   */
-
 static void readScope(){
 
     int counter=0;
-    int counterline = 0;
-    int limit = 0;
 
     struct timespec ts_start,ts_stop;
 
@@ -134,17 +127,9 @@ static void readScope(){
     set_current_state(TASK_UNINTERRUPTIBLE);
     getnstimeofday(&ts_start);
 
-    while(counterline<REPEAT_SIZE){
-        limit = (counterline+1)*SAMPLE_SIZE;
-        printk(KERN_INFO "scope: capturing repeat %d\n", counterline);
-        while(counter<(limit) ){
-            sampled_output.buffer[counter++]= *(gpio.addr + 13);
-        }
-        msleep(0.5);
-        counterline++;
+    while(counter<SAMPLE_SIZE){
+        sampled_output.buffer[counter++]= *(gpio.addr + 13);
     }
-    printk(KERN_INFO "scope: finished collecting data\n");
-
     //Stop time
     getnstimeofday(&ts_stop);
 

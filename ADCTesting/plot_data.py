@@ -27,7 +27,6 @@ def GetV2(Volts):
             SignalZero += 2**k*((val & 2**ADC2_GPIO[k])/2**ADC2_GPIO[k])
         Signal.append(SignalZero)
 
-
     return Signal,Map
 
 def GetV1(Volts):
@@ -42,15 +41,19 @@ def GetV1(Volts):
             SignalZero += 2**k*((val & 2**ADC1_GPIO[k])/2**ADC1_GPIO[k])
         Signal.append(SignalZero)
 
-
     return Signal,Map
 
 M = GetV2(V)[0]
 M2 = GetV1(V)[0]
-Ma = M - np.average(M[5000:7000])
-Mb = M2 - np.average(M2[5000:7000])
+
+SigOut = [];
+
+for z in range(len(M)):
+    SigOut.append(M[z]);
+    SigOut.append(M2[z]);
+    z += 1;
 
 plt.figure(figsize=(15,5))
-plt.plot(Mb,"b")
+plt.plot(SigOut,"b")
 plt.title("Plots "+RawData+' .')
 plt.show()
