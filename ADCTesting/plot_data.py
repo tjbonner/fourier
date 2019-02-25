@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from array import array
 import scipy.io
 import math
 RawData ="750k.bin"
@@ -54,7 +55,11 @@ for z in range(len(M)):
     SigOut.append(M2[z]);
     z += 1;
 
-scipy.io.savemat('750k.mat', mdict={'data': SigOut})
+#scipy.io.savemat('750k.mat', mdict={'data': SigOut})
+
+outfile = open('750k-processed.bin','wb')
+
+array('h',SigOut).tofile(outfile)
 
 #plt.figure(figsize=(15,5))
 #plt.plot(SigOut,"b")
