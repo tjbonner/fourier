@@ -36,14 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "gpu_fft.h"
 #include "computefft.h"
 
-/*
-char Usage[] =
-    "Usage: hello_fft.bin log2_N [jobs [loops]]\n"
-    "log2_N = log2(FFT_length),       log2_N = 8...22\n"
-    "jobs   = transforms per batch,   jobs>0,        default 1\n"
-    "loops  = number of test repeats, loops>0,       default 1\n";
-*/
-
 unsigned Microseconds(void) {
     struct timespec ts;
     clock_gettime(CLOCK_REALTIME, &ts);
@@ -87,7 +79,7 @@ int computefft(double* signal, int log2_N) {
         gpu_fft_execute(fft); // call one or many times
         //t[1] = Microseconds();
     }
-	
+
     //printf("finished performing fft\n\r");
     int temp;
 
@@ -98,10 +90,10 @@ int computefft(double* signal, int log2_N) {
 		    signal[i] = base[i].re;
 	    	i++;
 		    signal[i] = base[i].im;
-            //printf("index: %d %0.3lf %0.3lf\n", temp, signal[temp], signal[i]); 
+            //printf("index: %d %0.3lf %0.3lf\n", temp, signal[temp], signal[i]);
 	    }
     }
-    
+
     //printf("finished transfer\n\r");
 
     gpu_fft_release(fft); // Videocore memory lost if not freed !
