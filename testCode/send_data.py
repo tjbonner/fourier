@@ -16,25 +16,25 @@ except socket.error, msg:
 
 try:
     # Send data
-    message = struct.pack("!HH", 1, 0)
+    message = struct.pack("HH", 1, 0)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 3, 20)
+    message = struct.pack("HH", 3, 20)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 4, 67)
+    message = struct.pack("HH", 4, 67)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 6, 180)
+    message = struct.pack("HH", 6, 180)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 9, 277)
+    message = struct.pack("HH", 9, 277)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 12, 290)
+    message = struct.pack("HH", 12, 290)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
-    message = struct.pack("!HH", 14, 321)
+    message = struct.pack("HH", 14, 321)
     print >>sys.stderr, 'sending data'
     sock.sendall(message)
 
