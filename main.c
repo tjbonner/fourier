@@ -129,8 +129,8 @@ int main(void){
         /************************************/
         if(counter < TEST_RUN_LENGTH){
             printf("Test Run Length is: %d, Counter is at: %d\r\n", TEST_RUN_LENGTH, counter);
-            test_data.data = 1 + counter;
-            test_data.angle = 2 * counter;
+            test_data.data = 5;
+            test_data.angle = 18 * counter;
             printf("Test Data Data is: %d, Test Data Angle is: %d\r\n", test_data.data, test_data.angle);
             /******************************************/
             /* Send data back to the connected socket */
