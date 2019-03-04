@@ -1,6 +1,19 @@
 #ifndef PREPROCESSING_H_    /* Include guard */
 #define PREPROCESSING_H_
 
+#define POW10 1024
+#define POW11 2048
+#define POW12 4096
+#define POW13 8192
+#define POW14 16384
+#define POW15 32768
+#define POW16 65536
+#define POW17 131072
+#define POW18 262144
+#define POW19 524288
+#define POW20 1048576
+#define POW21 2097152
+
 /**********************************************/
 /* The output of the ADC does not have the    */ 
 /* data in the correct order, so before and   */
