@@ -10,11 +10,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <unistd.h>
+#include <math.h>
 
 #define CLIENT_SOCK_PATH "/tmp/power_data.sock" //This is where you send data, you are the client to the python server.
 #define SERVER_SOCK_PATH "/tmp/gui_control.sock" //This is where you receive data, you are the server to the python client.
 #define BUFF_SIZE 4 //The size of the rf_data struct - used for transmitting the structure
-#define TEST_RUN_LENGTH 10 //Arbitrary test run length
+#define TEST_RUN_LENGTH 50 //Arbitrary test run length
+
+#define PI 3.14159265 //For quick demos sake
 
 struct rf_data{
     uint16_t data;
@@ -23,11 +26,11 @@ struct rf_data{
 
 int main(void){
     /*
-     * Set up variables for each of the client and server sockets 
+     * Set up variables for each of the client and server sockets
      */
     int len_client;
     int client_sock;
-    int rc;
+    int rc,angle;
     struct sockaddr_un server_sockaddr;
     struct sockaddr_un client_sockaddr;
     bool run = true;
@@ -65,8 +68,9 @@ int main(void){
 
         if(counter < TEST_RUN_LENGTH){
             printf("Test Run Length is: %d, Counter is at: %d\r\n", TEST_RUN_LENGTH, counter);
-            test_data.data = 5;
-            test_data.angle = 18 * counter;
+            angle = (360 / TEST_RUN_LENGTH) * counter;
+            test_data.data = cos(angle * (PI/180));
+            test_data.angle = angle;
             printf("Test Data Data is: %d, Test Data Angle is: %d\r\n", test_data.data, test_data.angle);
             /* Send the data over the client socket to the server */
             printf("Sending data...\n");
