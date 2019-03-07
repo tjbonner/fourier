@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 #include <math.h>
+#include "globals.h"
 
 #define CLIENT_SOCK_PATH "/tmp/power_data.sock" //This is where you send data, you are the client to the python server.
 #define SERVER_SOCK_PATH "/tmp/gui_control.sock" //This is where you receive data, you are the server to the python client.
@@ -38,6 +39,11 @@ int main(void){
      * Sets up the test data and structure
      */
     struct rf_data test_data;
+    struct signal data;
+    struct signal real_data;
+    struct signal imag_data;
+    struct signal psdx;
+    struct max_values values_for_interpolate;
     int counter = 0;
     /*
      * Zero the socket structures
@@ -64,7 +70,21 @@ int main(void){
 
     while (run){
 
-        //TODO: EXECUTE POWER COMPUTE FUNCTIONS
+        //TODO: The following power compute functions have not been debugged
+        //and are simply placeholders while I thresh out my ideas
+
+        data = reorderData();
+        windowData(data);
+        antiAliasFilter(data);
+        decimateData();
+
+        // Send data to fft function
+
+        real_data.length = real_data.length/2;
+        imag_data.length = imag_data.length/2;
+        psdx = calculateMagSquared(real_data, imag_data);
+        values_for_interpolate = findPeak(psdx);
+        interpolate();
 
         if(counter < TEST_RUN_LENGTH){
             printf("Test Run Length is: %d, Counter is at: %d\r\n", TEST_RUN_LENGTH, counter);

@@ -5,6 +5,19 @@
 
 extern float window_weights[WINDOW_SIZE];
 
+extern struct signal
+{
+    uint32_t length;
+    uint32_t fs;
+    float samples[WINDOW_SIZE];
+};
+
+extern struct max_values
+{
+    float actual_max_value;
+    float actual_max_frequency;
+}
+
 /**********************************************/
 /* The FFT code that our system uses can only */
 /* handle lengths that are a power of 2,      */
