@@ -1,5 +1,5 @@
 #include <stdint.h>
-#include "preprocessing.h"
+#include "timeprocessing.h"
 #include "globals.h"
 
 double reorderData(){
@@ -13,9 +13,9 @@ double reorderData(){
 /* in the globals.c file. The pointer to the   */
 /* data array will now hold the windowed data. */
 /***********************************************/
-void windowData(double **data){
-    for(uint16_t i=0; i<sizeof(&data); i++){
-        (*data)[i] = (*data)[i] * window_weights[i];
+void windowData(float *data[]){
+    for(uint16_t i=0; i<sizeof(data); i++){
+        data[i] = data[i] * window_weights[i];
     }
 }
 
@@ -24,9 +24,5 @@ double antiAliasFilter(){
 }
 
 double decimateData(){
-
-}
-
-int nextPow2(){
 
 }

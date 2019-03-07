@@ -1,18 +1,5 @@
-#ifndef PREPROCESSING_H_    /* Include guard */
-#define PREPROCESSING_H_
-
-#define POW10 1024
-#define POW11 2048
-#define POW12 4096
-#define POW13 8192
-#define POW14 16384
-#define POW15 32768
-#define POW16 65536
-#define POW17 131072
-#define POW18 262144
-#define POW19 524288
-#define POW20 1048576
-#define POW21 2097152
+#ifndef TIMEPROCESSING_H_    /* Include guard */
+#define TIMEPROCESSING_H_
 
 /**********************************************/
 /* The output of the ADC does not have the    */ 
@@ -30,7 +17,7 @@ double reorderData();
 /* advantage of the peak smearing to get      */
 /* better points for our parabolic fit.       */
 /**********************************************/
-void windowData(double **data);
+void windowData(float *data);
 
 /**********************************************/
 /* We are sampling way above what the beat    */
@@ -50,15 +37,5 @@ double antiAliasFilter();
 /**********************************************/
 double decimateData();
 
-/**********************************************/
-/* The FFT code that our system uses can only */
-/* handle lengths that are a power of 2,      */
-/* and it's still faster anyways, so we need  */
-/* to find out how many samples we have and   */
-/* return the next power of 2 so that we can  */
-/* zero-pad the data before sending it to the */
-/* fft function.                              */
-/**********************************************/
-int nextPow2();
 
-#endif  // PREPROCESSING_H_
+#endif  // TIMEPROCESSING_H_
